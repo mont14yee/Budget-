@@ -1,15 +1,15 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useMemo, useCallback } from 'react';
 import { SavingsGoal, ExtraContribution, CompoundingFrequency } from '../types';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from 'recharts';
 
 interface SavingsViewProps {
     items: SavingsGoal[];
     addSavingsGoal: (item: Omit<SavingsGoal, 'id' | 'extraContributions'>) => void;
-    deleteSavingsGoal: (id: number) => void;
-    addExtraContribution: (goalId: number, contribution: Omit<ExtraContribution, 'id'>) => void;
+    deleteSavingsGoal: (id: string) => void;
+    addExtraContribution: (goalId: string, contribution: Omit<ExtraContribution, 'id'>) => void;
     netBalance: number;
     theme: 'light' | 'dark';
 }
@@ -106,7 +106,7 @@ const GrowthChart: React.FC<{ goal: SavingsGoal; projection: any[], theme: 'ligh
 };
 
 
-const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: number) => void; onAddExtra: (goalId: number, contribution: Omit<ExtraContribution, 'id'>) => void; theme: 'light' | 'dark' }> = ({ item, onDelete, onAddExtra, theme }) => {
+const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: string) => void; onAddExtra: (goalId: string, contribution: Omit<ExtraContribution, 'id'>) => void; theme: 'light' | 'dark' }> = ({ item, onDelete, onAddExtra, theme }) => {
     const { t, currencySettings } = useLanguage();
     const [boosterAmount, setBoosterAmount] = useState('');
     const { projection, futureValue } = useMemo(() => calculateProjection(item), [item]);
@@ -125,13 +125,13 @@ const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: number) => v
         e.preventDefault();
         const amount = parseFloat(boosterAmount);
         if (amount > 0) {
-            onAddExtra(item.id, { amount, date: new Date().toISOString().split('T')[0] });
+            onAddExtra(item.id, { amount, date: formatLocalDate(new Date()) });
             setBoosterAmount('');
         }
     };
 
     return (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 hover:shadow-lg transition-shadow duration-300 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all outline-none">
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="font-semibold text-gray-800 dark:text-gray-100">{item.name}</h3>
@@ -148,7 +148,7 @@ const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: number) => v
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('progress')}</span>
                     <span className="text-sm font-bold text-green-600 dark:text-green-400">{progress.toFixed(1)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-xl h-2.5">
                     <div className="bg-gradient-to-r from-green-400 to-green-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
                 </div>
                 <div className="flex justify-between text-sm mt-1 text-gray-600 dark:text-gray-400">
@@ -163,7 +163,7 @@ const SavingsGoalCard: React.FC<{ item: SavingsGoal; onDelete: (id: number) => v
                  <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">{t('futureValue')}: <span className="font-semibold text-gray-700 dark:text-gray-200">{formatCurrency(futureValue, currencySettings)}</span></p>
             </div>
             
-             <form onSubmit={handleAddBooster} className="mt-5 p-3 bg-gray-50/80 dark:bg-gray-700/30 rounded-3xl border border-gray-100 dark:border-gray-600/30 flex items-center gap-2">
+             <form onSubmit={handleAddBooster} className="mt-5 p-3 bg-gray-50/80 dark:bg-gray-700/30 rounded-3xl border border-gray-100 dark:border-gray-700/50/30 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-500 flex-shrink-0">
                     <i className="fas fa-rocket text-sm"></i>
                 </div>
@@ -208,7 +208,7 @@ const SavingsView: React.FC<SavingsViewProps> = ({ items, addSavingsGoal, delete
         resetForm();
     };
     
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     return (
         <div className="p-6 sm:p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 mb-8 animate-fadeIn">
@@ -219,7 +219,7 @@ const SavingsView: React.FC<SavingsViewProps> = ({ items, addSavingsGoal, delete
                     </div>
                     {t('savings')}
                 </h2>
-                <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold py-2 px-4 rounded-full hover:shadow-lg transition-all text-sm flex items-center gap-2">
+                <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold py-2 px-4 rounded-xl hover:shadow-lg transition-all text-sm flex items-center gap-2">
                     <i className="fas fa-plus"></i> {t('newSavingsGoal')}
                 </button>
             </div>

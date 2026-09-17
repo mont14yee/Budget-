@@ -1,4 +1,5 @@
 
+import { supabase } from '../lib/supabase';
 import React, { useState } from 'react';
 import { Transaction, MealPlan } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -13,11 +14,11 @@ const NutritionView: React.FC<NutritionViewProps> = ({ shoppingList }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    
     const handleGenerateMealPlan = async () => {
         setIsLoading(true);
         setError(null);
         setMealPlan(null);
-
         const shoppingItems = shoppingList.map(item => item.name).join(', ');
         if (!shoppingItems) {
             setError(t('mealPlanErrorEmptyList'));
@@ -26,25 +27,57 @@ const NutritionView: React.FC<NutritionViewProps> = ({ shoppingList }) => {
         }
 
         try {
+            let token = 'dummy-token';
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token) {
+                token = session.access_token;
+            }
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             const response = await fetch('/api/meal-plan', {
+                signal: controller.signal,
                 headers: { 
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 method: 'POST',
                 body: JSON.stringify({ shoppingItems })
             });
-            if (!response.ok) throw new Error('API Error');
+
+            clearTimeout(timeoutId);
+
+            if (response.status === 429) {
+                throw new Error('Too many requests. Please wait a moment.');
+            }
+            if (!response.ok) throw new Error('API request failed');
+
             const data = await response.json();
-            const jsonStr = data.text.trim();
+            
+            // Clean up possible markdown wrapper
+            let jsonStr = data.text.trim();
+            if (jsonStr.startsWith('```json')) {
+                jsonStr = jsonStr.substring(7);
+                if (jsonStr.endsWith('```')) {
+                    jsonStr = jsonStr.substring(0, jsonStr.length - 3);
+                }
+            }
+            jsonStr = jsonStr.trim();
+            
             const parsedPlan = JSON.parse(jsonStr) as MealPlan;
             setMealPlan(parsedPlan);
-        } catch (e) {
-            console.error("Error generating meal plan:", e);
-            setError(t('mealPlanErrorGeneric'));
+        } catch (err: any) {
+            console.error("Error generating meal plan:", err);
+            let errMsg = t('mealPlanErrorGeneric');
+            if (err.name === 'AbortError') errMsg = 'Request timed out. Please try again.';
+            if (err.message && err.message.includes('Too many requests')) errMsg = err.message;
+            setError(errMsg);
         } finally {
             setIsLoading(false);
         }
     };
+
 
     return (
         <div className="p-4 sm:p-6 bg-transparent h-full">
@@ -58,7 +91,7 @@ const NutritionView: React.FC<NutritionViewProps> = ({ shoppingList }) => {
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{t('mealPlannerDescription')}</p>
                         <button 
                             onClick={handleGenerateMealPlan}
-                            className="bg-blue-600 text-white font-bold py-2 px-5 rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto disabled:bg-blue-400 disabled:cursor-not-allowed mx-auto"
+                            className="bg-blue-600 text-white font-bold py-2 px-5 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto disabled:bg-blue-400 disabled:cursor-not-allowed mx-auto"
                             disabled={isLoading}
                         >
                             {isLoading ? (

@@ -1,7 +1,8 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 
+import { supabase } from '../lib/supabase';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { generateId, formatCurrency, parseLocalDate } from '../constants';
+import { generateId, formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 import { AllTransaction, TransactionType, UserProfile } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, Legend } from 'recharts';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -22,7 +23,7 @@ interface ReportSummary {
 }
 
 interface SavedReport {
-    id: number;
+    id: string;
     name: string;
     filters: {
         startDate: string;
@@ -53,7 +54,7 @@ const FinancialSummaryChart: React.FC<{ summary: ReportSummary }> = ({ summary }
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+                <div className="p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
                     <p className="label font-bold text-gray-800 dark:text-gray-200">{`${label}`}</p>
                     <p className="intro" style={{ color: payload[0].payload.fill }}>
                         {`${t('amount')}: ${formatCurrency(payload[0].value, currencySettings)}`}
@@ -149,7 +150,7 @@ const CategoryBreakdownChart: React.FC<{
                     </Pie>
                     <Tooltip content={({ active, payload }: any) => {
                         if (active && payload && payload.length) {
-                          return <div className="p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]"><p className="font-bold" style={{ color: payload[0].fill }}>{payload[0].name}</p><p>{formatCurrency(payload[0].value, currencySettings)}</p></div>;
+                          return <div className="p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]"><p className="font-bold" style={{ color: payload[0].fill }}>{payload[0].name}</p><p>{formatCurrency(payload[0].value, currencySettings)}</p></div>;
                         }
                         return null;
                     }}/>
@@ -164,10 +165,10 @@ const AISummary: React.FC<{ summary: string | null; isLoading: boolean }> = ({ s
     const { t } = useLanguage();
     if (isLoading) {
         return (
-            <div className="p-4 bg-blue-50 dark:bg-gray-900/50 rounded-lg border border-blue-200 dark:border-gray-700 animate-pulse">
+            <div className="p-4 bg-blue-50 dark:bg-gray-900/50 rounded-xl border border-blue-200 dark:border-gray-700/50 animate-pulse">
                 <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-3"></div>
                 <div className="space-y-2">
-                    <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
+                    <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded-xl w-full"></div>
                     <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
                     <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
                 </div>
@@ -178,7 +179,7 @@ const AISummary: React.FC<{ summary: string | null; isLoading: boolean }> = ({ s
     if (!summary) return null;
 
     return (
-        <div className="p-4 bg-blue-50 dark:bg-gray-900/50 rounded-lg border border-blue-200 dark:border-gray-700">
+        <div className="p-4 bg-blue-50 dark:bg-gray-900/50 rounded-xl border border-blue-200 dark:border-gray-700/50">
             <h4 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
                 <i className="fas fa-robot"></i> AI Financial Insights
             </h4>
@@ -190,7 +191,7 @@ const AISummary: React.FC<{ summary: string | null; isLoading: boolean }> = ({ s
 
 const ReportsView: React.FC<ReportsViewProps> = ({ userProfile, allTransactions, incomeCategories, expenseCategories, shoppingCategories }) => {
     const { t, currencySettings, language } = useLanguage();
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate(new Date());
     const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
     const [startDate, setStartDate] = useState(firstDayOfMonth);
@@ -248,6 +249,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ userProfile, allTransactions,
     const handleTypeChange = (type: TransactionType) => setSelectedTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
     const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCategories([...e.target.selectedOptions].map(o => o.value));
 
+    
     const generateAndSetAiSummary = async (summary: ReportSummary, report: AllTransaction[]) => {
         setIsGeneratingSummary(true);
         setAiSummary(null);
@@ -265,34 +267,48 @@ const ReportsView: React.FC<ReportsViewProps> = ({ userProfile, allTransactions,
                 .map(([name, amount]) => `${name}: ${formatCurrency(amount, currencySettings)}`)
                 .join('\n');
 
-            const prompt = `You are a helpful financial assistant. Based on the following financial data from a user's report, provide a concise summary and one or two actionable tips. The currency is ${currencySettings.symbol}. The user's language is ${language === 'am' ? 'Amharic' : 'English'}. Respond in the user's language.
-
+            const prompt = `Based on the following financial data from a user's report, provide a concise summary and one or two actionable tips. 
+The currency is ${currencySettings.symbol}. The user's language is ${language === 'am' ? 'Amharic' : 'English'}. Respond in the user's language.
 - Time Period: ${startDate} to ${endDate}
 - Total Income: ${formatCurrency(summary.totalIncome, currencySettings)}
 - Total Expenses: ${formatCurrency(summary.totalOutgoings, currencySettings)}
 - Net Balance: ${formatCurrency(summary.netBalance, currencySettings)}
 - Top 5 Expense Categories:
 ${top5Expenses}
-
 Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tips should be practical and relevant to the data provided. For example, if food spending is high, suggest meal planning. If the net balance is negative, suggest reviewing specific spending categories. Do not use markdown formatting like headers or lists. Just provide a single paragraph of text.`;
 
+            let token = 'dummy-token';
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token) {
+                token = session.access_token;
+            }
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             const response = await fetch('/api/report-summary', {
+                signal: controller.signal,
                 headers: { 
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 method: 'POST',
-                body: JSON.stringify({ prompt })
+                body: JSON.stringify({ prompt }),
             });
-            if (!response.ok) throw new Error('API Error');
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) throw new Error('API request failed');
             const data = await response.json();
             setAiSummary(data.text);
-        } catch (error) {
-            console.error("AI Summary generation failed:", error);
-            setAiSummary("Could not generate AI summary at this time.");
+        } catch (error: any) {
+            console.error('Failed to generate summary:', error);
+            setAiSummary('Failed to generate summary. Please try again.');
         } finally {
             setIsGeneratingSummary(false);
         }
     };
+
 
     const handleGenerateReport = () => {
         const start = parseLocalDate(startDate); start.setHours(0, 0, 0, 0);
@@ -337,7 +353,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
         setShowSaveForm(false);
     };
 
-    const handleLoadReport = (reportId: number) => {
+    const handleLoadReport = (reportId: string) => {
         const reportToLoad = savedReports.find(r => r.id === reportId);
         if (reportToLoad) {
             setStartDate(reportToLoad.filters.startDate);
@@ -347,7 +363,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
         }
     };
 
-    const handleDeleteReport = (reportId: number) => {
+    const handleDeleteReport = (reportId: string) => {
         if (window.confirm(t('reportDeleteConfirm'))) {
             setSavedReports(prev => prev.filter(r => r.id !== reportId));
         }
@@ -363,14 +379,14 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
         return generatedReport.filter(tx => tx.category === categoryFilter);
     }, [generatedReport, categoryFilter]);
     
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
     const labelClasses = "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1";
 
     return (
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 p-6 sm:p-8 mb-8">
             <div className="no-print">
                 {savedReports.length > 0 && (
-                    <div className="mb-6 p-4 bg-blue-50 dark:bg-gray-900/50 rounded-lg border border-blue-200 dark:border-gray-600">
+                    <div className="mb-6 p-4 bg-blue-50 dark:bg-gray-900/50 rounded-xl border border-blue-200 dark:border-gray-700/50">
                         <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2"><i className="fas fa-star"></i> {t('savedReports')}</h4>
                         <div className="flex flex-wrap gap-2">
                             {savedReports.map(report => (
@@ -392,7 +408,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div><label className={labelClasses} htmlFor="startDate">{t('startDate')}</label><input type="date" id="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputClasses} /></div>
                         <div><label className={labelClasses} htmlFor="endDate">{t('endDate')}</label><input type="date" id="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClasses} /></div>
-                        <div className="md:col-span-2 lg:col-span-1"><label className={labelClasses}>{t('transactionTypes')}</label><div className="flex flex-col sm:flex-row sm:gap-4 pt-1">{(Object.values(TransactionType) as TransactionType[]).map(type => (<label key={type} className="flex items-center gap-2 text-gray-800 dark:text-gray-200 cursor-pointer"><input type="checkbox" checked={selectedTypes.includes(type)} onChange={() => handleTypeChange(type)} className="h-4 w-4 rounded border-gray-300 text-slate-600 focus:ring-slate-500" /><span className="capitalize">{t(type as any)}</span></label>))}</div></div>
+                        <div className="md:col-span-2 lg:col-span-1"><label className={labelClasses}>{t('transactionTypes')}</label><div className="flex flex-col sm:flex-row sm:gap-4 pt-1">{(Object.values(TransactionType) as TransactionType[]).map(type => (<label key={type} className="flex items-center gap-2 text-gray-800 dark:text-gray-200 cursor-pointer"><input type="checkbox" checked={selectedTypes.includes(type)} onChange={() => handleTypeChange(type)} className="h-4 w-4 rounded-xl border-gray-200 dark:border-gray-700/50 text-slate-600 focus:ring-slate-500" /><span className="capitalize">{t(type as any)}</span></label>))}</div></div>
                         <div><label className={labelClasses} htmlFor="categories">{t('categories')}</label><select id="categories" multiple value={selectedCategories} onChange={handleCategoryChange} className={`${inputClasses} h-24`} aria-label="Select categories for the report">{availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select><p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('reportCategoriesHelp')}</p></div>
                     </div>
                 </div>
@@ -402,7 +418,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                         <i className={`fas fa-save transition-transform duration-300 ${showSaveForm ? 'text-blue-500' : ''}`}></i>
                         {showSaveForm ? t('reportCancelSave') : t('reportSaveFilters')}
                     </button>
-                    <button onClick={handleGenerateReport} className="bg-slate-600 text-white font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors flex items-center gap-2"><i className="fas fa-cogs"></i> {t('generateReport')}</button>
+                    <button onClick={handleGenerateReport} className="bg-slate-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-slate-700 transition-colors flex items-center gap-2"><i className="fas fa-cogs"></i> {t('generateReport')}</button>
                 </div>
 
                 {showSaveForm && (
@@ -417,7 +433,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                                 className={`${inputClasses} flex-grow`}
                                 aria-label="New report name"
                             />
-                            <button onClick={handleSaveReport} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-700 transition-colors flex-shrink-0 flex items-center justify-center gap-2">
+                            <button onClick={handleSaveReport} className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all rounded-xl py-2.5 px-5 flex items-center justify-center gap-2 flex-shrink-0">
                                 <i className="fas fa-save"></i> {t('save')}
                             </button>
                         </div>
@@ -433,7 +449,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                                 {t('reportGeneratedOn')} {new Date().toLocaleDateString()} | {startDate} to {endDate}
                             </p>
                         </div>
-                        <button onClick={() => window.print()} className="no-print bg-teal-600 text-white font-bold py-2 px-4 rounded-full hover:bg-teal-700 transition-colors flex items-center gap-2">
+                        <button onClick={() => window.print()} className="no-print bg-teal-600 text-white font-bold py-2 px-4 rounded-xl hover:bg-teal-700 transition-colors flex items-center gap-2">
                             <i className="fas fa-print"></i> Print Report
                         </button>
                     </header>
@@ -469,7 +485,7 @@ Keep the summary friendly, insightful, and brief (around 3-4 sentences). The tip
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="text-lg font-bold text-gray-700 dark:text-gray-200">{t('transactionDetails')}</h4>
                                 {categoryFilter && (
-                                    <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/50 p-2 rounded-lg">
+                                    <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/50 p-2 rounded-xl">
                                         <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
                                             {t('showingTransactionsFor')}: {categoryFilter}
                                         </span>

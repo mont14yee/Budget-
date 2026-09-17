@@ -127,12 +127,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ scheduled, loans, subscript
         <div className="p-4 sm:p-6 bg-transparent h-full flex flex-col lg:flex-row gap-6">
             <div className="flex-grow bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
                 <header className="flex items-center justify-between mb-4">
-                    <button onClick={goToPreviousMonth} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Previous month"><i className="fas fa-chevron-left"></i></button>
+                    <button onClick={goToPreviousMonth} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Previous month"><i className="fas fa-chevron-left"></i></button>
                     <div className="text-center">
                         <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">{monthFormatter.format(currentDate)}</h2>
                         <button onClick={goToToday} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">{t('today')}</button>
                     </div>
-                    <button onClick={goToNextMonth} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Next month"><i className="fas fa-chevron-right"></i></button>
+                    <button onClick={goToNextMonth} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Next month"><i className="fas fa-chevron-right"></i></button>
                 </header>
                 <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">
                     {[...Array(7)].map((_, i) => <div key={i}>{dayFormatter.format(new Date(2023, 0, i + 1))}</div>)}

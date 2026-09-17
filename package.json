@@ -12,17 +12,15 @@
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
+    "@supabase/supabase-js": "^2.116.0",
     "decimal.js": "^10.6.0",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.2",
-    "firebase": "^12.17.0",
-    "firebase-admin": "^14.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "recharts": "^3.1.2"
   },
   "devDependencies": {
-    "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@tailwindcss/vite": "^4.3.3",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.2",

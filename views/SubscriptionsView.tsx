@@ -9,13 +9,13 @@ interface SubscriptionsViewProps {
     subscriptions: Subscription[];
     addSubscription: (sub: Omit<Subscription, 'id'>) => void;
     updateSubscription: (sub: Subscription) => void;
-    deleteSubscription: (id: number) => void;
+    deleteSubscription: (id: string) => void;
     theme: 'light' | 'dark';
     expenseCategories: string[];
     incomeCategories: string[];
 }
 
-const SubscriptionCard: React.FC<{ sub: Subscription, onUpdate: (sub: Subscription) => void, onDelete: (id: number) => void, onEdit: (sub: Subscription) => void }> = ({ sub, onUpdate, onDelete, onEdit }) => {
+const SubscriptionCard: React.FC<{ sub: Subscription, onUpdate: (sub: Subscription) => void, onDelete: (id: string) => void, onEdit: (sub: Subscription) => void }> = ({ sub, onUpdate, onDelete, onEdit }) => {
     const { t, currencySettings } = useLanguage();
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -73,7 +73,7 @@ const SubscriptionCard: React.FC<{ sub: Subscription, onUpdate: (sub: Subscripti
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                         {sub.cancellationUrl && <a href={sub.cancellationUrl} target="_blank" rel="noopener noreferrer" className="text-center w-full bg-slate-600 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-slate-700">{t('cancelSubscription')} <i className="fas fa-external-link-alt ml-1"></i></a>}
+                         {sub.cancellationUrl && <a href={sub.cancellationUrl} target="_blank" rel="noopener noreferrer" className="text-center w-full bg-slate-600 text-white text-sm font-bold py-2 px-3 rounded-xl hover:bg-slate-700">{t('cancelSubscription')} <i className="fas fa-external-link-alt ml-1"></i></a>}
                          <div className="flex gap-2">
                              <button onClick={() => onEdit(sub)} className="flex-1 text-center bg-gray-200 dark:bg-gray-700 text-sm font-bold py-2 px-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">{t('edit')}</button>
                              <button onClick={() => onDelete(sub.id)} className="flex-1 text-center bg-red-500 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-red-600">{t('delete')}</button>
@@ -144,11 +144,11 @@ const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({ subscriptions, ad
     return (
         <div className="p-4 sm:p-6 bg-transparent h-full space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-sm text-center">
+                 <div className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-sm text-center">
                     <h3 className="text-sm font-semibold text-red-500 dark:text-red-400">{t('monthlyOutflow')}</h3>
                     <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{formatCurrency(totalOutflow, currencySettings)}</p>
                  </div>
-                 <div className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-sm text-center">
+                 <div className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-sm text-center">
                     <h3 className="text-sm font-semibold text-green-500 dark:text-green-400">{t('monthlyInflow')}</h3>
                     <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{formatCurrency(totalInflow, currencySettings)}</p>
                  </div>
@@ -157,14 +157,14 @@ const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({ subscriptions, ad
             <div aria-live="assertive" className="sr-only">{priceAlert}</div>
             {priceAlert && <div className="p-3 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 rounded-lg text-center font-semibold animate-fadeIn">{priceAlert}</div>}
 
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-lg shadow-sm">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-xl shadow-sm">
                  <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                      <div className="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                          <button onClick={() => setView('all')} className={`px-3 py-1 text-sm rounded-full ${view === 'all' ? 'bg-white dark:bg-gray-900 shadow' : ''}`}>{t('viewAll')}</button>
                          <button onClick={() => setView('outflows')} className={`px-3 py-1 text-sm rounded-full ${view === 'outflows' ? 'bg-white dark:bg-gray-900 shadow' : ''}`}>{t('viewOutflows')}</button>
                          <button onClick={() => setView('inflows')} className={`px-3 py-1 text-sm rounded-full ${view === 'inflows' ? 'bg-white dark:bg-gray-900 shadow' : ''}`}>{t('viewInflows')}</button>
                      </div>
-                     <button onClick={() => handleOpenForm(null)} className="bg-slate-600 text-white font-bold py-2 px-4 rounded-full hover:bg-slate-700 flex items-center gap-2">
+                     <button onClick={() => handleOpenForm(null)} className="bg-slate-600 text-white font-bold py-2 px-4 rounded-xl hover:bg-slate-700 flex items-center gap-2">
                         <i className="fas fa-plus"></i> {t('addSubscription')}
                     </button>
                  </div>
@@ -179,7 +179,7 @@ const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({ subscriptions, ad
                  )}
             </div>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-lg shadow-sm">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-xl shadow-sm">
                 <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">{t('incomeFlower')}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t('incomeFlowerDescription')}</p>
                 <BloomingFlowerChart data={subscriptions.filter(s => s.type === SubscriptionType.Income)} theme={theme} />
@@ -221,11 +221,11 @@ const SubscriptionFormModal: React.FC<{ sub: Subscription | null; onSave: (data:
     };
     
     const categories = formData.type === SubscriptionType.Income ? incomeCategories : expenseCategories;
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     return (
         <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4 animate-fadeIn">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md max-h-[90vh] flex flex-col">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md max-h-[90vh] flex flex-col">
                 <header className="p-4 border-b dark:border-gray-700">
                     <h2 className="font-bold text-lg">{sub ? t('editSubscription') : t('newSubscription')}</h2>
                 </header>
@@ -272,7 +272,7 @@ const SubscriptionFormModal: React.FC<{ sub: Subscription | null; onSave: (data:
                          <input type="text" name="cancellationUrl" value={formData.cancellationUrl} onChange={handleChange} placeholder={t('cancellationUrlPlaceholder')} className={inputClasses} />
                     </div>
                     {formData.type === SubscriptionType.Income && (
-                         <div className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-md">
+                         <div className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-xl">
                             <input type="checkbox" name="isVariable" id="isVariable" checked={formData.isVariable} onChange={handleChange} className="h-4 w-4" />
                             <label htmlFor="isVariable" className="text-sm">{t('isIncomeVariable')}</label>
                         </div>

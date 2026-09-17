@@ -29,7 +29,7 @@ export enum TransactionType {
 export type Category = string;
 
 export interface Transaction {
-    id: number;
+    id: string;
     name: string;
     amount: number;
     date: string;
@@ -48,13 +48,13 @@ export enum CompoundingFrequency {
 }
 
 export interface ExtraContribution {
-    id: number;
+    id: string;
     amount: number;
     date: string;
 }
 
 export interface SavingsGoal {
-    id: number;
+    id: string;
     name: string;
     targetAmount: number;
     deadline: string;
@@ -96,13 +96,13 @@ export enum RepaymentSchedule {
 }
 
 export interface Repayment {
-    id: number;
+    id: string;
     amount: number;
     date: string;
 }
 
 export interface Loan {
-    id: number;
+    id: string;
     type: LoanType;
     person: string; // Borrower or Lender name
     totalAmount: number;
@@ -117,7 +117,7 @@ export interface Loan {
 }
 
 export interface Investment {
-    id: number;
+    id: string;
     name: string; // e.g., 'AAPL' or 'Vanguard S&P 500 ETF'
     type: 'Stock' | 'ETF' | 'Crypto' | 'Mutual Fund' | 'Other';
     quantity: number;
@@ -136,7 +136,7 @@ export enum Frequency {
 }
 
 export interface ScheduledTransaction {
-    id: number;
+    id: string;
     name: string;
     amount: number;
     category: Category;
@@ -174,7 +174,7 @@ export enum SubscriptionHealth {
 }
 
 export interface Subscription {
-    id: number;
+    id: string;
     name: string;
     type: SubscriptionType;
     amount: number;

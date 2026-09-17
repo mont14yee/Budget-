@@ -2,15 +2,15 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Investment, Transaction } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface InvestmentsViewProps {
     investments: Investment[];
     addInvestment: (item: Omit<Investment, 'id'>) => void;
     updateInvestment: (item: Investment) => void;
-    sellInvestment: (id: number) => void;
-    deleteInvestment: (id: number) => void;
+    sellInvestment: (id: string) => void;
+    deleteInvestment: (id: string) => void;
     income?: Transaction[];
     expenses?: Transaction[];
 }
@@ -26,7 +26,7 @@ const InvestmentFormModal: React.FC<{
     const [quantity, setQuantity] = useState('');
     const [purchasePrice, setPurchasePrice] = useState('');
     const [currentPrice, setCurrentPrice] = useState('');
-    const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
+    const [purchaseDate, setPurchaseDate] = useState(formatLocalDate(new Date()));
 
     if (!isOpen) return null;
 
@@ -42,11 +42,11 @@ const InvestmentFormModal: React.FC<{
         onClose();
     };
     
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
     
     return (
         <div className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4 animate-fadeIn">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md">
                 <form onSubmit={handleSubmit}>
                     <header className="p-4 border-b dark:border-gray-700">
                         <h2 className="font-bold text-lg">{t('newInvestment')}</h2>
@@ -80,8 +80,8 @@ const InvestmentFormModal: React.FC<{
 const InvestmentCard: React.FC<{
     item: Investment;
     onUpdate: (item: Investment) => void;
-    onSell: (id: number) => void;
-    onDelete: (id: number) => void;
+    onSell: (id: string) => void;
+    onDelete: (id: string) => void;
 }> = ({ item, onUpdate, onSell, onDelete }) => {
     const { t, currencySettings } = useLanguage();
     const [newCurrentPrice, setNewCurrentPrice] = useState(item.currentPrice.toString());
@@ -113,10 +113,10 @@ const InvestmentCard: React.FC<{
     };
 
     return (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative group">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative group">
             <button 
                 onClick={handleDelete} 
-                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 outline-none"
                 aria-label={t('delete')}
             >
                 <i className="fas fa-trash text-sm"></i>
@@ -139,7 +139,7 @@ const InvestmentCard: React.FC<{
             <div className="mt-4 flex items-center justify-end gap-2">
                 {isUpdating ? (
                     <div className="flex items-center gap-2 animate-fadeIn">
-                        <input type="number" value={newCurrentPrice} onChange={e => setNewCurrentPrice(e.target.value)} className="w-28 p-1 border rounded bg-transparent text-sm"/>
+                        <input type="number" value={newCurrentPrice} onChange={e => setNewCurrentPrice(e.target.value)} className="w-28 p-1 border rounded-xl bg-transparent text-sm"/>
                         <button onClick={handleUpdate} className="text-green-600 p-2"><i className="fas fa-check"></i></button>
                         <button onClick={() => setIsUpdating(false)} className="text-red-500 p-2"><i className="fas fa-times"></i></button>
                     </div>
@@ -238,7 +238,7 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
 
             {/* Budget & Threshold Section */}
             {budgetData.thresholdAlert && (
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm" role="alert">
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-xl shadow-sm" role="alert">
                     <p className="font-bold">Budget Alert</p>
                     <p>{budgetData.thresholdAlert}</p>
                 </div>
@@ -353,10 +353,9 @@ const InvestmentsView: React.FC<InvestmentsViewProps> = ({ investments, addInves
                 {investments.length > 0 ? (
                     investments.map(inv => <InvestmentCard key={inv.id} item={inv} onUpdate={updateInvestment} onSell={sellInvestment} onDelete={deleteInvestment} />)
                 ) : (
-                    <div className="text-center py-16">
-                        <i className="fas fa-seedling text-6xl text-gray-300 dark:text-gray-600"></i>
-                        <p className="mt-4 text-gray-500 dark:text-gray-400">{t('noInvestments')}</p>
-                    </div>
+                    
+<div className="flex flex-col items-center justify-center py-12 px-4 text-center animate-fadeIn bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm my-4"><div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 shadow-sm border border-gray-200/50 dark:border-gray-700/50"><i className="fas fa-seedling text-2xl text-gray-400 dark:text-gray-500"></i></div><h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">{t('noInvestments') || 'No investments'}</h3><p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] leading-relaxed">Add an investment to track its performance over time.</p></div>
+
                 )}
             </div>
 

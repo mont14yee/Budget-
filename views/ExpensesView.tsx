@@ -9,7 +9,7 @@ interface ExpensesViewProps {
     allItems: Transaction[];
     total: number;
     addExpense: (item: Omit<Transaction, 'id'>) => void;
-    deleteExpense: (id: number) => void;
+    deleteExpense: (id: string) => void;
     categoryFilter: string | null;
     onClearFilter: () => void;
     expenseCategories: string[];

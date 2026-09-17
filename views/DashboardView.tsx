@@ -19,6 +19,7 @@ interface DashboardViewProps {
     setCategoryFilter: (category: string | null) => void;
     exportToCSV: () => void;
     assets: number;
+    netWorth?: number;
     liabilities: number;
 }
 
@@ -60,15 +61,16 @@ const CHART_COLORS = ['#10b981', '#f43f5e', '#ff9800', '#2196f3', '#8b5cf6', '#0
 const getIconForCategory = (cat: string) => CATEGORY_ICONS[cat] || 'fa-tag';
 
 const StatCard: React.FC<{ title: string; amount: number; icon: string; color: string; borderColor: string; currencySettings: any }> = ({ title, amount, icon, color, borderColor, currencySettings }) => (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <div className="flex items-center justify-between">
+    <div className="group relative overflow-hidden bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl p-6 rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:-translate-y-1">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 rounded-full opacity-20 blur-2xl transition-all duration-500 group-hover:scale-150" style={{ backgroundColor: color }}></div>
+        <div className="relative z-10 flex items-center justify-between">
             <div>
-                 <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{title}</p>
-                 <h3 className={`text-3xl font-semibold mt-2 tracking-tight ${amount >= 0 ? 'text-gray-800 dark:text-gray-100' : 'text-red-500'}`}>
+                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wide mb-1">{title}</p>
+                 <h3 className={`text-3xl font-semibold tracking-tight ${amount >= 0 ? 'text-gray-900 dark:text-gray-50' : 'text-red-500 dark:text-red-400'}`}>
                     {formatCurrency(amount, currencySettings)}
                 </h3>
             </div>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-inner border border-white/40 dark:border-gray-600/30" style={{ backgroundColor: color + '15', color: color }}>
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center text-xl shadow-sm border border-gray-100/50 dark:border-gray-800/50 transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: color + '10', color: color }}>
                 <i className={icon}></i>
             </div>
         </div>
@@ -84,11 +86,11 @@ const CategoryList: React.FC<{ breakdown: {name: string, amount: number}[], tota
                 <button 
                     key={item.name}
                     onClick={() => onCategoryClick(item.name, type)}
-                    className="w-full group text-left p-3 rounded-3xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1"
+                    className="w-full group text-left p-3 rounded-3xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1 dark:bg-gray-900/50 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 duration-300 outline-none"
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-inner" style={{ backgroundColor: catColor }}>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white dark:text-gray-900 shadow-inner" style={{ backgroundColor: catColor }}>
                                 <i className={`fas ${getIconForCategory(item.name)} text-sm`}></i>
                             </div>
                             <div>
@@ -98,7 +100,7 @@ const CategoryList: React.FC<{ breakdown: {name: string, amount: number}[], tota
                         </div>
                         <span className="font-black text-sm text-gray-800 dark:text-gray-100">{formatCurrency(item.amount, currencySettings)}</span>
                     </div>
-                    <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded-xl overflow-hidden shadow-inner">
                         <div 
                             className="h-full rounded-full transition-all duration-1000 ease-out" 
                             style={{ width: `${percentage}%`, backgroundColor: catColor }}
@@ -110,7 +112,7 @@ const CategoryList: React.FC<{ breakdown: {name: string, amount: number}[], tota
     </div>
 );
 
-const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmount, allIncome, allExpenses, theme, setActiveView, setCategoryFilter, exportToCSV, assets, liabilities }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmount, allIncome, allExpenses, theme, setActiveView, setCategoryFilter, exportToCSV, assets, liabilities , netWorth}) => {
     const { t, currencySettings, language } = useLanguage();
     const [dateRange, setDateRange] = useState('month');
 
@@ -221,8 +223,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
     return (
         <ViewContainer title={t('dashboard')} icon="fas fa-chart-line">
             {/* Main Stats */}
-            <div className="mb-8 max-w-sm">
-                <StatCard title={t('netAmount')} amount={netAmount} icon="fas fa-balance-scale" color="#2196f3" borderColor="border-blue-500" currencySettings={currencySettings} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <StatCard title={t('netAmount')} amount={netAmount} icon="fas fa-money-bill-wave" color="#2196f3" borderColor="border-blue-500" currencySettings={currencySettings} />
+                 {netWorth !== undefined && <StatCard title={t('netWorth') || 'Net Worth'} amount={netWorth} icon="fas fa-balance-scale" color="#9c27b0" borderColor="border-purple-500" currencySettings={currencySettings} />}
             </div>
 
             {/* Assets & Liabilities */}
@@ -352,7 +355,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ income, expenses, netAmou
                     </div>
                     <button
                         onClick={exportToCSV}
-                        className="bg-slate-600 text-white font-bold py-3 px-6 rounded-full hover:bg-slate-700 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
+                        className="bg-slate-600 text-white dark:text-gray-900 font-bold py-3 px-6 rounded-xl hover:bg-slate-700 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
                     >
                         <i className="fas fa-file-csv"></i>
                         <span>{t('exportCSV')}</span>

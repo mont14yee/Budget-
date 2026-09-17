@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { AllTransaction, Transaction, TransactionType } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 
 declare global {
     interface Window {
@@ -39,7 +39,7 @@ const TransactionFormModal: React.FC<{
     const [type, setType] = useState<TransactionType>(TransactionType.Expense);
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalDate(new Date()));
     const [category, setCategory] = useState('');
     const [mood, setMood] = useState<string>('');
     
@@ -62,11 +62,11 @@ const TransactionFormModal: React.FC<{
     };
 
     const categories = type === TransactionType.Income ? incomeCategories : expenseCategories;
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     return (
         <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4 animate-fadeIn">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md max-h-[90vh] flex flex-col">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-md max-h-[90vh] flex flex-col">
                 <header className="p-4 border-b dark:border-gray-700">
                     <h2 className="font-bold text-lg">{t('addActivity')}</h2>
                 </header>
@@ -261,7 +261,7 @@ const ActivityLogView: React.FC<ActivityLogViewProps> = ({ transactions, addTran
                         value={quickAddInput}
                         onChange={e => setQuickAddInput(e.target.value)}
                         placeholder={t('quickAddActivityPlaceholder')}
-                        className="flex-1 bg-gray-100 dark:bg-gray-700 border-none rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm"
+                        className="flex-1 bg-gray-100 dark:bg-gray-700 border-none rounded-xl py-3 px-5 focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm bg-gray-50 dark:bg-gray-900/50 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 outline-none"
                     />
                     <button type="button" onClick={handleMicClick} className={`text-xl p-3 rounded-full transition-colors ${isListening ? 'text-red-500 bg-red-100 dark:bg-red-900/50' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`} aria-label={isListening ? 'Stop listening' : 'Start listening'}>
                         <i className="fas fa-microphone"></i>
@@ -287,16 +287,16 @@ const ActivityLogView: React.FC<ActivityLogViewProps> = ({ transactions, addTran
             />
              {isCameraOpen && (
                 <div className="fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 animate-fadeIn">
-                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-lg relative">
-                        <video ref={videoRef} autoPlay playsInline className="w-full rounded-t-lg"></video>
-                        <button onClick={closeCamera} className="absolute top-2 right-2 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/80 transition-colors" aria-label="Close camera view">
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full max-w-lg relative">
+                        <video ref={videoRef} autoPlay playsInline className="w-full rounded-xl-lg"></video>
+                        <button onClick={closeCamera} className="absolute top-2 right-2 bg-black/50 text-white w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/80 transition-colors" aria-label="Close camera view">
                             <i className="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
             )}
             {permissionError && (
-                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] z-[130] animate-fadeIn w-11/12 max-w-md" role="alert">
+                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] z-[130] animate-fadeIn w-11/12 max-w-md" role="alert">
                   <span className="block sm:inline">{permissionError}</span>
                 </div>
             )}

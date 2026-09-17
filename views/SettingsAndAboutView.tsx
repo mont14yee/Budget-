@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
-import { UserProfile } from '../../types';
+import { useLanguage } from '../contexts/LanguageContext';
+import { UserProfile } from '../types';
 
 // ==================================================================
 // Shared Premium Components
@@ -13,7 +13,7 @@ interface SettingsSectionProps {
 }
 
 const SettingsSection: React.FC<SettingsSectionProps> = ({ title, icon, children }) => (
-    <div className="mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 overflow-hidden">
+    <div className="mb-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-xl-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 overflow-hidden">
         <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                 <i className={`${icon} text-sm`}></i>
@@ -80,7 +80,7 @@ const SettingsContent: React.FC<SettingsProps> = ({ theme, setTheme }) => {
     }, [theme]);
 
     const selectClasses = "w-full sm:w-auto bg-transparent border border-gray-200 dark:border-gray-600 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-cyan-500/50 text-sm font-medium text-gray-700 dark:text-gray-200";
-    const inputClasses = "w-full sm:w-24 bg-transparent border border-gray-200 dark:border-gray-600 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-cyan-500/50 text-sm font-medium text-gray-700 dark:text-gray-200 text-center";
+    const inputClasses = "";
 
     return (
         <div className="pb-8">
@@ -233,7 +233,7 @@ const AboutContent: React.FC<AboutContentProps> = ({ userProfile, setUserProfile
         setIsEditing(true);
     };
 
-    const inputClasses = "w-full p-3 border-none rounded-xl bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500/50 transition-all font-medium text-sm";
+    const inputClasses = "";
     
     return (
         <div className="pb-8">
@@ -265,15 +265,15 @@ const AboutContent: React.FC<AboutContentProps> = ({ userProfile, setUserProfile
                         </form>
                     ) : (
                         <div className="flex flex-col sm:flex-row items-center gap-6">
-                            <img src={userProfile?.avatar || `https://ui-avatars.com/api/?name=${userProfile?.name?.replace(/\s/g, '+') || 'User'}&background=random&color=fff`} alt="User Avatar" className="w-20 h-20 rounded-full object-cover shadow-sm ring-4 ring-white dark:ring-gray-800" />
+                            <img referrerPolicy="no-referrer" src={userProfile?.avatar || `https://ui-avatars.com/api/?name=${userProfile?.name?.replace(/\s/g, '+') || 'User'}&background=random&color=fff`} alt="User Avatar" className="w-20 h-20 rounded-full object-cover shadow-sm ring-4 ring-white dark:ring-gray-800" />
                             <div className="flex-1 text-center sm:text-left">
                                 <p className="text-xl font-bold text-gray-900 dark:text-white">{userProfile?.name || 'Anonymous'}</p>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{userProfile?.email || ''}</p>
                                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2">
-                                    <button onClick={handleEditClick} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-purple-600 dark:text-cyan-400 bg-purple-50 dark:bg-cyan-900/20 hover:bg-purple-100 dark:hover:bg-cyan-900/40 transition-colors">
+                                    <button onClick={handleEditClick} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-purple-600 dark:text-cyan-400 bg-purple-50 dark:bg-cyan-900/20 hover:bg-purple-100 dark:hover:bg-cyan-900/40 transition-colors">
                                        <i className="fas fa-pencil-alt text-xs"></i> {t('sidebarEditProfile')}
                                     </button>
-                                    <button onClick={handleLogout} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                                    <button onClick={handleLogout} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
                                        <i className="fas fa-sign-out-alt text-xs"></i> 'Log Out'
                                     </button>
                                 </div>

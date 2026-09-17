@@ -2,13 +2,13 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Loan, LoanType, Repayment, InterestType, RepaymentSchedule } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 
 interface LoansViewProps {
     loans: Loan[];
     addLoan: (loan: Omit<Loan, 'id' | 'repayments' | 'outstandingAmount'>) => void;
-    deleteLoan: (id: number) => void;
-    addRepayment: (loanId: number, repayment: Omit<Repayment, 'id'>) => void;
+    deleteLoan: (id: string) => void;
+    addRepayment: (loanId: string, repayment: Omit<Repayment, 'id'>) => void;
 }
 
 const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => void; }> = ({ onSave, onCancel }) => {
@@ -18,7 +18,7 @@ const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => vo
     const [totalAmount, setTotalAmount] = useState('');
     const [interestRate, setInterestRate] = useState('0');
     const [interestType, setInterestType] = useState<InterestType>(InterestType.Simple);
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalDate(new Date()));
     const [dueDate, setDueDate] = useState('');
     const [repaymentSchedule, setRepaymentSchedule] = useState<RepaymentSchedule>(RepaymentSchedule.OneTime);
     const [notes, setNotes] = useState('');
@@ -76,7 +76,7 @@ const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => vo
         });
     };
 
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     return (
         <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 shadow-sm animate-fadeIn">
@@ -150,10 +150,10 @@ const LoanForm: React.FC<{ onSave: LoansViewProps['addLoan']; onCancel: () => vo
     );
 };
 
-const AddRepaymentForm: React.FC<{ loanId: number; onAddRepayment: LoansViewProps['addRepayment']; }> = ({ loanId, onAddRepayment }) => {
+const AddRepaymentForm: React.FC<{ loanId: string; onAddRepayment: LoansViewProps['addRepayment']; }> = ({ loanId, onAddRepayment }) => {
     const { t, currencySettings } = useLanguage();
     const [amount, setAmount] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalDate(new Date()));
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -178,7 +178,7 @@ const AddRepaymentForm: React.FC<{ loanId: number; onAddRepayment: LoansViewProp
     );
 };
 
-const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepayment: LoansViewProps['addRepayment']; isExpanded: boolean; onToggleExpand: () => void; }> = ({ loan, onDelete, onAddRepayment, isExpanded, onToggleExpand }) => {
+const LoanCard: React.FC<{ loan: Loan; onDelete: (id: string) => void; onAddRepayment: LoansViewProps['addRepayment']; isExpanded: boolean; onToggleExpand: () => void; }> = ({ loan, onDelete, onAddRepayment, isExpanded, onToggleExpand }) => {
     const { t, currencySettings } = useLanguage();
     const isLent = loan.type === LoanType.Lent;
     const isOverdue = parseLocalDate(loan.dueDate) < new Date() && loan.outstandingAmount > 0;
@@ -209,7 +209,7 @@ const LoanCard: React.FC<{ loan: Loan; onDelete: (id: number) => void; onAddRepa
                     </div>
                     
                     <div className="mt-3">
-                         <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                         <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-xl h-2">
                             <div className={`h-2 rounded-full ${isLent ? 'bg-green-500' : 'bg-yellow-500'}`} style={{ width: `${progress}%` }}></div>
                         </div>
                         <div className="flex justify-between text-xs mt-1 text-gray-600 dark:text-gray-400">
@@ -262,7 +262,7 @@ const LoansView: React.FC<LoansViewProps> = ({ loans, addLoan, deleteLoan, addRe
     const { t, currencySettings } = useLanguage();
     const [activeTab, setActiveTab] = useState<LoanType>(LoanType.Lent);
     const [showForm, setShowForm] = useState(false);
-    const [expandedLoanId, setExpandedLoanId] = useState<number | null>(null);
+    const [expandedLoanId, setExpandedLoanId] = useState<string | null>(null);
 
     const { lentLoans, borrowedLoans, totalLent, totalBorrowed } = useMemo(() => {
         const lent = loans.filter(l => l.type === LoanType.Lent);
@@ -290,7 +290,7 @@ const LoansView: React.FC<LoansViewProps> = ({ loans, addLoan, deleteLoan, addRe
                     {t('loans')}
                 </h2>
                 <div className="mt-3 sm:mt-0">
-                    <button onClick={() => setShowForm(!showForm)} className="bg-slate-600 text-white font-bold py-2 px-4 rounded-full hover:bg-slate-700 transition-colors flex items-center gap-2">
+                    <button onClick={() => setShowForm(!showForm)} className="bg-slate-600 text-white font-bold py-2 px-4 rounded-xl hover:bg-slate-700 transition-colors flex items-center gap-2">
                         <i className={`fas fa-${showForm ? 'times' : 'plus'}`}></i> {t('newLoan')}
                     </button>
                 </div>

@@ -9,7 +9,7 @@ interface IncomeViewProps {
     allItems: Transaction[];
     total: number;
     addIncome: (item: Omit<Transaction, 'id'>) => void;
-    deleteIncome: (id: number) => void;
+    deleteIncome: (id: string) => void;
     categoryFilter: string | null;
     onClearFilter: () => void;
     categories: string[];

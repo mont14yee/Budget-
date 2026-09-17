@@ -2,14 +2,14 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo, useCallback } from 'react';
 import { ScheduledTransaction, TransactionType, Frequency, Transaction } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 import ViewContainer from '../components/ViewContainer';
 
 interface ScheduledViewProps {
     scheduled: ScheduledTransaction[];
     addScheduled: (item: Omit<ScheduledTransaction, 'id'>) => void;
     updateScheduled: (item: ScheduledTransaction) => void;
-    deleteScheduled: (id: number) => void;
+    deleteScheduled: (id: string) => void;
     logTransaction: (type: TransactionType, item: Omit<Transaction, 'id'>) => void;
     incomeCategories: string[];
     expenseCategories: string[];
@@ -43,7 +43,7 @@ const ScheduledForm: React.FC<{
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
     const [frequency, setFrequency] = useState<Frequency>(Frequency.Monthly);
-    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [startDate, setStartDate] = useState(formatLocalDate(new Date()));
     const [endDate, setEndDate] = useState('');
     const [notes, setNotes] = useState('');
 
@@ -63,7 +63,7 @@ const ScheduledForm: React.FC<{
     };
 
     const categories = type === TransactionType.Income ? incomeCategories : expenseCategories;
-    const inputClasses = "w-full p-2 border rounded bg-transparent border-gray-300 dark:border-gray-600 dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     return (
         <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 shadow-sm animate-fadeIn">
@@ -220,7 +220,7 @@ const ScheduledView: React.FC<ScheduledViewProps> = ({ scheduled, addScheduled, 
         >
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                 <p className="text-gray-600 dark:text-gray-400 text-sm">{t('scheduledDescription')}</p>
-                <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold py-2 px-4 rounded-full hover:shadow-lg transition-all text-sm flex items-center gap-2">
+                <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold py-2 px-4 rounded-xl hover:shadow-lg transition-all text-sm flex items-center gap-2">
                     <i className={`fas fa-${showForm ? 'times' : 'plus'}`}></i> {t('addScheduled')}
                 </button>
             </div>

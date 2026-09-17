@@ -80,6 +80,15 @@ export const formatLocalDate = (d: Date): string => {
 };
 
 let _idCounter = Date.now();
-export const generateId = (): number => {
-    return _idCounter++;
+export const generateId = (): string => {
+    return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+};
+
+export const getDeviceId = (): string => {
+    let deviceId = localStorage.getItem('wallet_device_id');
+    if (!deviceId) {
+        deviceId = 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('wallet_device_id', deviceId);
+    }
+    return deviceId;
 };

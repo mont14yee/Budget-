@@ -26,7 +26,7 @@ const FooterNav: React.FC<FooterNavProps> = ({ activeView, setActiveView }) => {
     
     return (
         <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center px-6 pointer-events-none">
-            <nav className="pointer-events-auto flex items-center justify-between px-3 py-3 w-full max-w-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/40 dark:border-gray-700/50">
+            <nav className="pointer-events-auto flex items-center justify-between px-3 py-3 w-full max-w-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/40 dark:border-gray-700/50">
                 {NAV_ITEMS.map((item) => {
                     const isActive = activeView === item.id;
                     return (
@@ -41,7 +41,7 @@ const FooterNav: React.FC<FooterNavProps> = ({ activeView, setActiveView }) => {
                             aria-label={t(item.labelKey)}
                         >
                             <i className={`${item.icon} text-lg transition-colors duration-300 ${
-                                isActive ? 'text-white' : 'text-teal-600/80 dark:text-cyan-400/80'
+                                isActive ? 'text-white' : 'text-gray-400 dark:text-gray-500'
                             }`}></i>
                             
                             {isActive && (

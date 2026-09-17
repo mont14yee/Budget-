@@ -23,7 +23,7 @@ const CurrencyConverter: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     
-    const inputClasses = "mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md";
+    const inputClasses = "";
 
     const handleConvert = async () => {
         setLoading(true);
@@ -105,7 +105,7 @@ const CurrencyConverter: React.FC = () => {
                             </select>
                         </div>
                         <div className="self-end">
-                            <button onClick={handleConvert} className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed" disabled={loading}>
+                            <button onClick={handleConvert} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold shadow-md shadow-cyan-500/20 active:scale-[0.98] transition-all rounded-xl py-2.5 px-5 flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed" disabled={loading}>
                                 {loading ? <><i className="fas fa-spinner fa-spin"></i><span>{t('converting') || 'Converting'}...</span></> : <><i className="fas fa-exchange-alt"></i> <span>{t('convert') || 'Convert'}</span></>}
                             </button>
                         </div>

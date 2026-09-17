@@ -3,7 +3,7 @@ import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/mo
 import React, { useState, useMemo } from 'react';
 import { Transaction } from '../types';
 import ViewContainer from './ViewContainer';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import MonthlyFlowChart from './charts/MonthlyFlowChart';
 
@@ -14,7 +14,7 @@ interface TransactionViewProps {
     allItems: Transaction[];
     total: number;
     onAddItem: (item: Omit<Transaction, 'id'>) => void;
-    onDeleteItem: (id: number) => void;
+    onDeleteItem: (id: string) => void;
     categories: string[];
     itemIcon: string;
     itemColor: string;
@@ -40,7 +40,7 @@ const TransactionItem: React.FC<{
     item: Transaction; 
     icon: string; 
     color: string; 
-    onDelete: (id: number) => void;
+    onDelete: (id: string) => void;
 }> = ({ item, icon, color, onDelete }) => {
     const { currencySettings } = useLanguage();
     return (
@@ -79,10 +79,10 @@ const TransactionForm: React.FC<{
     const { t, currencySettings } = useLanguage();
     const [name, setName] = useState(initialData?.name || '');
     const [amount, setAmount] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalDate(new Date()));
     const [category, setCategory] = useState(initialData?.category || categories[0] || '');
     
-    const inputClasses = "mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent dark:text-white dark:placeholder-gray-400";
+    const inputClasses = "";
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -248,7 +248,7 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
             borderColor={borderColor}
         >
             {categoryFilter && (
-                <div className="flex items-center justify-between bg-yellow-100 dark:bg-yellow-900/50 p-3 rounded-lg mb-6 shadow-sm border border-yellow-300 dark:border-yellow-700">
+                <div className="flex items-center justify-between bg-yellow-100 dark:bg-yellow-900/50 p-3 rounded-xl mb-6 shadow-sm border border-yellow-300 dark:border-yellow-700">
                     <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
                         {t('showingTransactionsFor')}: <span className="font-bold text-base">{categoryFilter}</span>
                     </p>
@@ -267,7 +267,7 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
                 <p className="text-xs text-gray-400 dark:text-gray-500">{comparisonText}</p>
             </div>
 
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 mb-8">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-xl-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-gray-700/50 mb-8">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100 dark:border-gray-700/50">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Latest Transactions</h3>
                     <button className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center text-gray-400">
@@ -275,7 +275,11 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
                     </button>
                 </div>
                 <div className="space-y-1">
-                    {displayedItems.length > 0 ? displayedItems.map(item => (
+                    
+                    {displayedItems.length === 0 && (
+<div className="flex flex-col items-center justify-center py-12 px-4 text-center animate-fadeIn bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm my-4"><div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 shadow-sm border border-gray-200/50 dark:border-gray-700/50"><i className="fas fa-folder-open text-2xl text-gray-400 dark:text-gray-500"></i></div><h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">{'No records found'}</h3><p className="text-sm text-gray-500 dark:text-gray-400 max-w-[250px] leading-relaxed">Add your first entry to start tracking.</p></div>
+)}
+{displayedItems.length > 0 ? displayedItems.map(item => (
                          <TransactionItem 
                             key={item.id} 
                             item={item} 
@@ -329,7 +333,7 @@ const TransactionView: React.FC<TransactionViewProps> = (props) => {
 
             {showForm && (
                 <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4 animate-fadeIn" onClick={handleCancel}>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
                         <TransactionForm 
                             categories={categories}
                             onSave={handleSave}

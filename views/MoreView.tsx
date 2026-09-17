@@ -113,7 +113,7 @@ const MoreView: React.FC<MoreViewProps> = ({ onSelectFeature }) => {
                         WALLET
                     </h2>
                     
-                    <div className="relative inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mb-6 shadow-sm">
+                    <div className="relative inline-flex items-center px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mb-6 shadow-sm">
                         <span className="text-[10px] uppercase font-mono font-semibold tracking-widest text-slate-500 dark:text-slate-400">
                             Version 1.0 <span className="text-slate-400 dark:text-slate-500">(Build 2026)</span>
                         </span>

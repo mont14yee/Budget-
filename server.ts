@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
+import { createClient } from "@supabase/supabase-js";
 import rateLimit from 'express-rate-limit';
 
 async function startServer() {
@@ -14,41 +15,87 @@ async function startServer() {
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
-    keyGenerator: (req: any) => {
-      return req.ip;
-    },
     message: 'Too many requests, please try again later.',
   });
 
   // Apply middlewares to API routes
   app.use('/api/', apiLimiter);
 
+  // Auth Middleware
+
+  
+  
+  // Note: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be in process.env when server runs.
+  // Actually, VITE_ prefixed vars might not be in process.env depending on how it's started, but AI Studio injects them.
+  const supabase = createClient(
+    process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.VITE_SUPABASE_ANON_KEY || 'placeholder'
+  );
+
+  const requireAuth = async (req: express.Request & { token?: string, user?: any }, res: express.Response, next: express.NextFunction) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized: Missing or invalid token' });
+    }
+    const token = authHeader.split(' ')[1];
+    
+    // Verify token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+    
+    req.user = user;
+    next();
+  };
+
   // API endpoints
-  app.post("/api/chat", async (req, res) => {
+  app.post("/api/chat", requireAuth, async (req, res) => {
     try {
-      const { messages, input } = req.body;
+      const { messages, input, contextData } = req.body;
+      
       const history = (messages || []).map((m: any) => ({
         role: m.sender === "user" ? "user" : "model",
         parts: [{ text: m.text }],
       }));
+
+      // Build context from user's actual data
+      let dataContext = "";
+      if (contextData) {
+        dataContext = `\n\nUser's Financial Context (DO NOT SHARE WITH OTHERS):
+- Total Income: ${contextData.totalIncome}
+- Total Expenses: ${contextData.totalExpenses}
+- Net Balance: ${contextData.netBalance}
+- Recent Transactions: ${contextData.recentTransactions}`;
+      }
 
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const chat = ai.chats.create({
         model: "gemini-2.5-flash",
         history,
         config: {
-          systemInstruction: `You are a helpful financial assistant for a budget management app called 'Wallet' (ዋሌት). Your goal is to answer user questions about personal finance, budgeting, saving, and how to use the app's features. Be friendly, clear, and concise. Do not ask for personal financial data. You can explain concepts like income, expenses, targets, and reports. Keep your answers relatively short and easy to understand.`,
+          systemInstruction: `You are a secure, helpful personal-finance assistant for the 'Wallet' (ዋሌት) app. 
+Your goal is to answer questions about the user's personal finance, budgeting, and saving.
+Be friendly, clear, and concise.
+
+IMPORTANT RULES:
+1. You only have access to the authenticated user's data provided in the context. Never mix user data.
+2. Clearly distinguish financial education/general guidance from regulated professional financial advice. If the user asks for investment advice, clarify that you provide general information, not professional advice.
+3. You can provide spending summaries, budget explanations, savings suggestions, expense categorization, financial trend explanations, subscription insights, and goal progress summaries based on the user's data.
+4. Keep your answers relatively short and easy to understand.${dataContext}`,
         },
       });
+
       const response = await chat.sendMessage({ message: input });
       res.json({ text: response.text });
     } catch (e) {
       console.error(e);
-      res.status(500).json({ error: (e as any).message });
+      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
     }
   });
 
-  app.post("/api/meal-plan", async (req, res) => {
+  app.post("/api/meal-plan", requireAuth, async (req, res) => {
     try {
       const { shoppingItems } = req.body;
       const prompt = `
@@ -111,22 +158,25 @@ async function startServer() {
       res.json({ text: response.text });
     } catch (e) {
       console.error(e);
-      res.status(500).json({ error: (e as any).message });
+      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
     }
   });
 
-  app.post("/api/report-summary", async (req, res) => {
+  app.post("/api/report-summary", requireAuth, async (req, res) => {
     try {
       const { prompt } = req.body;
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
+        config: {
+           systemInstruction: "You are a secure financial assistant. Only use the provided user data. Provide general guidance, not regulated financial advice."
+        }
       });
       res.json({ text: response.text });
     } catch (e) {
       console.error(e);
-      res.status(500).json({ error: (e as any).message });
+      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
     }
   });
 

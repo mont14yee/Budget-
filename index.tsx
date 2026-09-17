@@ -1,3 +1,4 @@
+import "./index.css";
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -36,6 +37,8 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 }
 
+import { AuthProvider } from './contexts/AuthContext';
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
@@ -45,9 +48,11 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );

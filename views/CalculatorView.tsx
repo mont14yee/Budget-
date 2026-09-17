@@ -1,7 +1,7 @@
 import { addMoney, subtractMoney, multiplyMoney, divideMoney } from '../utils/money';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatCurrency, parseLocalDate } from '../constants';
+import { formatCurrency, parseLocalDate , formatLocalDate} from '../constants';
 
 // --- UI Components ---
 const InputField: React.FC<{ label: string; icon: string; type: string; value: string; onChange: (val: string) => void; placeholder?: string; step?: string; min?: string; unit?: string }> = ({ label, icon, type, value, onChange, unit, ...props }) => (
@@ -15,7 +15,7 @@ const InputField: React.FC<{ label: string; icon: string; type: string; value: s
                 type={type} 
                 value={value} 
                 onChange={e => onChange(e.target.value)} 
-                className="block w-full rounded-lg border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700/60 dark:text-white py-3 pl-10 pr-4 text-base focus:border-slate-500 focus:ring-slate-500 transition" 
+                className="block w-full rounded-xl border-gray-200 dark:border-gray-700/50 bg-gray-50 dark:border-gray-700/50 dark:bg-gray-700/60 dark:text-white py-3 pl-10 pr-4 text-base focus:border-slate-500 focus:ring-slate-500 transition dark:bg-gray-900/50 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 outline-none" 
                 {...props} 
             />
             {unit && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{unit}</span></div>}
@@ -130,7 +130,7 @@ const SimpleCalculator = () => {
     const buttons = ['C', '<', '%', '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '00', '0', '.', '='];
     return (
         <div className="p-3 sm:p-4 flex flex-col h-full bg-gray-100 dark:bg-gray-800/50">
-            <input type="text" value={display} readOnly className="w-full p-4 mb-4 bg-gray-200 dark:bg-gray-900 text-right text-5xl font-light rounded-3xl border-none focus:ring-0" />
+            <input type="text" value={display} readOnly className="w-full p-4 mb-4 bg-gray-200 dark:bg-gray-900 text-right text-5xl font-light -3xl border-none" />
             <div className="grid grid-cols-4 gap-3 flex-grow">
                 {buttons.map(btn => {
                     const isOp = ['/', '*', '-', '+', '%'].includes(btn);
@@ -152,7 +152,7 @@ const SimpleCalculator = () => {
 };
 const DateCalculator: React.FC = () => {
     const { t } = useLanguage();
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate(new Date());
     const [startDate, setStartDate] = useState(today);
     const [endDate, setEndDate] = useState(today);
     const [result, setResult] = useState<string | null>(null);
@@ -228,7 +228,7 @@ const LoanCalculator = () => {
             <InputField label={t('loanAmount')} icon="fas fa-hand-holding-usd" type="number" value={amount} onChange={setAmount} unit={currencySettings.symbol}/>
             <InputField label={t('annualInterestRate')} icon="fas fa-percentage" type="number" value={rate} onChange={setRate} unit="%"/>
             <InputField label={t('loanTermYears')} icon="fas fa-calendar-alt" type="number" value={term} onChange={setTerm} unit={t('years')}/>
-            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2">
+            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2">
                 <i className="fas fa-calculator"></i> {t('calculate')}
             </button>
             {result && <ResultDisplay title={t('loanDetails')} icon="fas fa-file-invoice-dollar">
@@ -259,7 +259,7 @@ const FuelCalculator = () => {
             <InputField label={t('tripDistance')} icon="fas fa-road" type="number" value={dist} onChange={setDist} unit="km" />
             <InputField label={t('fuelEfficiency')} icon="fas fa-tachometer-alt" type="number" value={eff} onChange={setEff} unit="L/100km"/>
             <InputField label={t('fuelPrice')} icon="fas fa-gas-pump" type="number" value={price} onChange={setPrice} unit={`${currencySettings.symbol} / ${t('liter')}`}/>
-            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
+            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
             {result && <ResultDisplay title={t('tripCost')} icon="fas fa-burn">
                 <div className="text-xl">{t('totalFuelNeeded')}: <span className="font-extrabold">{result.fuel.toFixed(2)}L</span></div>
                 <div className="text-3xl mt-1">{t('totalCost')}: <span className="font-extrabold">{formatCurrency(result.cost, currencySettings)}</span></div>
@@ -283,7 +283,7 @@ const DiscountCalculator = () => {
         <div className="p-4 sm:p-6 space-y-5">
             <InputField label={t('originalPrice')} icon="fas fa-tag" type="number" value={price} onChange={setPrice} unit={currencySettings.symbol}/>
             <InputField label={t('discountPercentage')} icon="fas fa-percentage" type="number" value={discount} onChange={setDiscount} unit="%"/>
-            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
+            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
             {result && <ResultDisplay title={t('finalPrice')} icon="fas fa-receipt">
                  <div className="text-4xl">{formatCurrency(result.final, currencySettings)}</div>
                  <div className="text-lg mt-1 text-red-600 dark:text-red-400">({t('youSave')}: {formatCurrency(result.saved, currencySettings)})</div>
@@ -307,7 +307,7 @@ const SalesTaxCalculator = () => {
         <div className="p-4 sm:p-6 space-y-5">
             <InputField label={t('priceBeforeTax')} icon="fas fa-money-bill-wave" type="number" value={price} onChange={setPrice} unit={currencySettings.symbol}/>
             <InputField label={t('salesTaxRate')} icon="fas fa-percentage" type="number" value={tax} onChange={setTax} unit="%"/>
-            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
+            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
             {result && <ResultDisplay title={t('priceAfterTax')} icon="fas fa-file-alt">
                 <div className="text-4xl">{formatCurrency(result.final, currencySettings)}</div>
                 <div className="text-lg mt-1 text-gray-500 dark:text-gray-400">({t('taxAmount')}: {formatCurrency(result.taxAmount, currencySettings)})</div>
@@ -336,7 +336,7 @@ const HealthCalculator = () => {
         <div className="p-4 sm:p-6 space-y-5">
             <InputField label={t('weightKg')} icon="fas fa-weight" type="number" value={weight} onChange={setWeight} unit="kg"/>
             <InputField label={t('heightCm')} icon="fas fa-ruler-vertical" type="number" value={height} onChange={setHeight} unit="cm"/>
-            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
+            <button onClick={calculate} className="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-colors text-lg flex items-center justify-center gap-2"><i className="fas fa-calculator"></i> {t('calculate')}</button>
             {result && <ResultDisplay title="Body Mass Index (BMI)" icon="fas fa-heartbeat">
                 <div className="text-5xl font-mono">{result.bmi.toFixed(1)}</div>
                 <div className={`text-xl mt-2 font-semibold ${result.categoryColor}`}>{result.category}</div>
@@ -351,7 +351,7 @@ type CalculatorType = 'simple' | 'date' | 'loan' | 'fuel' | 'discount' | 'tax' |
 const CalculatorSelectionCard: React.FC<{ icon: string; label: string; onClick: () => void; }> = ({ icon, label, onClick }) => (
     <button
         onClick={onClick}
-        className="group flex flex-col items-center justify-center p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 text-center border-t-4 border-gray-200 dark:border-gray-700 hover:border-slate-500"
+        className="group flex flex-col items-center justify-center p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 text-center border-t-4 border-gray-200 dark:border-gray-700/50 hover:border-slate-500 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 outline-none"
     >
         <div className="text-4xl text-slate-600 dark:text-slate-400 mb-3 group-hover:scale-110 transition-transform">
             <i className={icon}></i>
@@ -408,7 +408,7 @@ const CalculatorView: React.FC = () => {
     const activeCalcDetails = calculators.find(c => c.id === activeCalculator);
 
     return (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] h-full flex flex-col overflow-hidden border-4 border-gray-200 dark:border-gray-700">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] h-full flex flex-col overflow-hidden border-4 border-gray-200 dark:border-gray-700/50">
             <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center p-3 gap-3">
                 <button
                     onClick={() => setActiveCalculator(null)}
